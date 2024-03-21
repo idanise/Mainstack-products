@@ -1,7 +1,7 @@
 
 import * as mongoDB from 'mongodb'; 
 import dotenv from 'dotenv'; 
-import User from '../Models/Auth/userModel';
+import { User } from '../Models/Auth/userModel';
 dotenv.config();
 
 export const collections: { users?: mongoDB.Collection } = {}
@@ -24,5 +24,6 @@ export async function connectToDatabase () {
        
          console.log(`Successfully connected to database: ${db.databaseName} and collection: ${usersCollection.collectionName}`);
  }
+ 
  
 

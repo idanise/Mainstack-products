@@ -7,6 +7,7 @@ import pino from 'pino'
 import  {query} from 'express-validator';
 import { connectToDatabase } from './src/Services/database.service';
 import authRoute from './src/Routes/authRoutes'
+import bodyParser = require('body-parser');
 
 dotenv.config(); 
 
@@ -19,7 +20,7 @@ const PORT = process.env.PORT;
 const logger = require('pino')(); 
 
 const app = express(); 
-app.use(express.json()); 
+app.use(bodyParser.json()); 
 app.use(express.urlencoded({extended: false})); 
 app.use(cors()); 
 app.use(cookieParser()); 
