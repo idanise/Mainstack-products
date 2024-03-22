@@ -6,11 +6,26 @@ import * as mongoDB from 'mongodb';
 import * as dotenv from 'dotenv'; 
 import { User } from '../Models/Auth/userModel';
 import { MongoError } from 'mongodb';
+import * as bcrypt from 'bcrypt';
+import { IUser } from '../Models/Auth/userModel';
+
 
 const registerUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const newUser = req.body as typeof User; 
+        const newUser = req.body as IUser; 
+
+        const saltRounds = 10; 
+        const salt = await bcrypt.genSalt(saltRounds); 
+
+        const hashedPassword = await bcrypt.hash(newUser.password, salt); 
+
+        newUser.password = hashedPassword; 
+        newUser.salt = salt; 
+
+
         const result = await collections.users?.insertOne(newUser); 
+
+        
 
         result
         ? res.status(201).send(`Successfully created a new user with id ${result.insertedId}`)
