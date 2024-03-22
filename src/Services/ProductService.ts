@@ -118,4 +118,37 @@ const deleteSingleProduct = async (req: Request, res: Response, next: NextFuncti
     }
 }
 
-export {createProduct, getProductById, getAllProductsByCategory, deleteSingleProduct}
+const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
+    const productId = req.query.productId as string;
+
+    try {
+        const updatedProductData = {
+            ...req.body, 
+            updatedAt: new Date() 
+        };
+        const result = await collections.products?.updateOne(
+            { _id: new mongoose.Types.ObjectId(productId) },
+            { $set: updatedProductData }
+        );
+
+        const response = result
+        ? {
+            responseCode: "00",
+            responseMessage: "Product updated successfully",
+            data: null
+        }
+        : {
+            responseCode: "99",
+            responseMessage: "Failed to update product",
+            data: null
+        };
+
+        res.status(response ? 200 : 400).json(response);
+
+    } catch (error) {
+        console.error('Error updating product:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+}
+
+export {createProduct, getProductById, getAllProductsByCategory, deleteSingleProduct, updateProduct}

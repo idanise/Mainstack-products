@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { createProduct, getProductById, getAllProductsByCategory, deleteSingleProduct } from '../Services/ProductService';
+import { createProduct, getProductById, getAllProductsByCategory, deleteSingleProduct, updateProduct } from '../Services/ProductService';
 
 const createProductController = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -37,7 +37,16 @@ const deleteSingleProductController = async (req: Request, res: Response, next: 
     }
 };
 
+const updateProductController = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        await updateProduct(req, res, next); 
+    } catch (error) {
+        console.error('Error in create category controller:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
 
 
 
-export {  createProductController, getProductByIdController, getProductsByCategoryController, deleteSingleProductController };
+
+export {  createProductController, getProductByIdController, getProductsByCategoryController, deleteSingleProductController, updateProductController };
