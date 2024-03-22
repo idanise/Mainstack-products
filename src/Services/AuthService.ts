@@ -26,9 +26,20 @@ const registerUser = async (req: Request, res: Response, next: NextFunction) => 
 
         const result = await collections.users?.insertOne(newUser); 
 
-        result
-        ? res.status(201).send(`Successfully created a new user with id ${result.insertedId}`)
-        : res.status(500).send("Failed to create a new user.");
+
+        const response = result
+        ? {
+            responseCode: "00",
+            responseMessage: `Successful created user with id ${result.insertedId}`,
+            data: result
+        }
+        : {
+            responseCode: "99",
+            responseMessage: "Failed to create user",
+            data: null
+        };
+    
+    res.status(response ? 200 : 400).json(response);
 
     } catch (error) {
         if (error instanceof MongoError && error.code === 11000) {
