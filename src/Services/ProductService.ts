@@ -36,7 +36,7 @@ const createProduct = async (req: Request, res: Response, next: NextFunction) =>
 };
 
 const getProductById = async (req: Request, res: Response, next: NextFunction) => {
-    const productId = req.params.productId as string;
+    const productId = req.query.productId as string;
     try {
 
         console.log(productId); 
@@ -61,8 +61,35 @@ const getProductById = async (req: Request, res: Response, next: NextFunction) =
     }
 };
 
-const getProductByCategory = (req: Request, res: Response, next: NextFunction) => {
+const getAllProductsByCategory = async (req: Request, res: Response, next: NextFunction) => {
+    const categoryId = req.query.categoryId;
+
+    try 
+    {
+        console.log(categoryId);
+        const productsCursor = collections.products?.find({ category: categoryId });
+
+
+        if (!productsCursor) {
+            return res.status(404).json({ error: 'No products found for the specified category' });
+        }
+
+        const products = await productsCursor.toArray();
+
+        if (!products || products.length === 0) {
+            return res.status(404).json({ error: 'No products found for the specified category' });
+        }
+
+        res.status(200).json({
+            responseCode: "00",
+            responseMessage: "Products retrieved successfully",
+            data: products
+        });
+    } catch(err){
+        console.error('Error fetching product by ID:', err);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
 
 }; 
 
-export {createProduct, getProductById}
+export {createProduct, getProductById, getAllProductsByCategory}
