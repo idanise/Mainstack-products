@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction, response } from 'express';
 import {collections} from "../Services/database.service";
 import { IProduct, Product } from '../Models/Products/productModel';
+import mongoose from 'mongoose';
 
 const createProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -34,5 +35,34 @@ const createProduct = async (req: Request, res: Response, next: NextFunction) =>
     }
 };
 
+const getProductById = async (req: Request, res: Response, next: NextFunction) => {
+    const productId = req.params.productId as string;
+    try {
 
-export {createProduct}
+        console.log(productId); 
+        const product = await collections.products?.findOne({ _id: new mongoose.Types.ObjectId(productId) });
+
+        const response = product
+            ? {
+                responseCode: "00",
+                responseMessage: "Product retreived successfully",
+                data: product
+            }
+            : {
+                responseCode: "99",
+                responseMessage: "Failed to get product",
+                data: null
+            };
+
+        res.status(response ? 200 : 400).json(response);
+    } catch (error) {
+        console.error('Error fetching product by ID:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+const getProductByCategory = (req: Request, res: Response, next: NextFunction) => {
+
+}; 
+
+export {createProduct, getProductById}

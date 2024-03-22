@@ -55,13 +55,10 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
 
         const { email, password } = req.body; 
-        console.log(req.body); 
 
         const secret_key = process.env.SECRET_KEY as string; 
-        console.log(secret_key); 
 
         const user = await collections.users?.findOne({email}); 
-        console.log(user); 
 
         if (!user) {
             const jsonResponse = {
