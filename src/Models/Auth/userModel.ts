@@ -14,6 +14,8 @@ interface IUser extends Document {
     salt: string;
     userRole: UserRole;
     middleName?: string;
+    dateCreated: Date; 
+    dateUpdated?: Date; 
 
     authenticate(plainText: string): boolean;
     encryptPassword(password: string): string;
@@ -29,7 +31,11 @@ const userSchema: Schema<IUser> = new Schema<IUser>({
     password: { type: String, required: true },
     salt: { type: String, required: true },
     userRole: { type: Number, enum: [UserRole.User, UserRole.Admin], default: UserRole.User },
+    dateCreated: {type: Date, required: true}, 
+    dateUpdated: {type: Date},
     middleName: { type: String }
+}, {
+    timestamps: true 
 });
 
 const User = mongoose.model<IUser>('User', userSchema);

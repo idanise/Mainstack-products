@@ -1,13 +1,12 @@
 import { Request, Response, NextFunction, response } from 'express';
-import {userSignupValidator} from '../Validator/SignUpValidator'; // Import the validation middleware
+import {userSignupValidator} from '../Validator/SignUpValidator'; 
 import { ObjectId } from "mongodb";
 import {collections} from "../Services/database.service";
 import * as mongoDB from 'mongodb'; 
 import * as dotenv from 'dotenv'; 
-import { User } from '../Models/Auth/userModel';
 import { MongoError } from 'mongodb';
 import * as bcrypt from 'bcrypt';
-import { IUser } from '../Models/Auth/userModel';
+import { IUser, User } from '../Models/Auth/userModel';
 import * as jwt from 'jsonwebtoken'; 
 
 
@@ -23,6 +22,7 @@ const registerUser = async (req: Request, res: Response, next: NextFunction) => 
 
         newUser.password = hashedPassword; 
         newUser.salt = salt; 
+        newUser.dateCreated = new Date(); 
 
         const result = await collections.users?.insertOne(newUser); 
 
@@ -43,7 +43,6 @@ const registerUser = async (req: Request, res: Response, next: NextFunction) => 
 
     } catch (error) {
         if (error instanceof MongoError && error.code === 11000) {
-            // Duplicate key error, email already exists
             return res.status(400).json({ error: "Email already exists" });
         }
         console.error('Error registering user:', error);

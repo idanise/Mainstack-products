@@ -7,6 +7,7 @@ import pino from 'pino'
 import  {query} from 'express-validator';
 import { connectToDatabase } from './src/Services/database.service';
 import authRoute from './src/Routes/authRoutes'
+import categoryRoute from './src/Routes/categoryRoute'
 import bodyParser = require('body-parser');
 
 dotenv.config(); 
@@ -33,6 +34,7 @@ app.get("/", (req, res) => {
 
 
 app.use("/api/user",  authRoute); 
+app.use("/api/category", categoryRoute); 
 
 
 app.listen(PORT,    () => {
