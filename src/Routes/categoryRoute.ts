@@ -1,8 +1,8 @@
 import express from 'express'
 const router = express.Router()
-import { createCategoryController } from '../Controller/CategoryController';
 import {authenticate, isAdmin} from '../Helpers/AuthHelper'
+import { createCategory } from '../Services/CategoryService';
 
-router.post('/create', isAdmin, createCategoryController);
+router.post('/create', isAdmin, createCategory);
 
 export default router
