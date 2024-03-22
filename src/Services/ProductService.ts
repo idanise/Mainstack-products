@@ -92,4 +92,30 @@ const getAllProductsByCategory = async (req: Request, res: Response, next: NextF
 
 }; 
 
-export {createProduct, getProductById, getAllProductsByCategory}
+
+const deleteSingleProduct = async (req: Request, res: Response, next: NextFunction) => {
+    const productId = req.query.productId as string;
+
+    try {
+        const result = await collections.products?.deleteOne({ _id: new mongoose.Types.ObjectId(productId) });
+
+        const response = result
+        ? {
+            responseCode: "00",
+            responseMessage: "Product deleted successfully",
+            data: null
+        }
+        : {
+            responseCode: "99",
+            responseMessage: "Failed to delete product",
+            data: null
+        };
+
+    res.status(response ? 200 : 400).json(response);
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+}
+
+export {createProduct, getProductById, getAllProductsByCategory, deleteSingleProduct}
