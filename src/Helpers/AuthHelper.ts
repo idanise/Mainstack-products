@@ -42,7 +42,7 @@ const isAdmin = (req: AuthenticatedRequest, res: Response, next: NextFunction) =
 
     try {
         const decoded: any = jwt.verify(token, secret_key);
-        if (decoded && decoded.userRole === UserRole.Admin) {
+        if (decoded && decoded.role === UserRole.Admin) { // Check against decoded.role
             req.user = decoded;
             next();
         } else {
@@ -52,6 +52,7 @@ const isAdmin = (req: AuthenticatedRequest, res: Response, next: NextFunction) =
         return res.status(401).json({ error: 'Unauthorized: Invalid token' });
     }
 };
+
 
 
 
