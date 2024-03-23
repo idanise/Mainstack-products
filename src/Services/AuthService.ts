@@ -6,14 +6,28 @@ import * as mongoDB from 'mongodb';
 import * as dotenv from 'dotenv'; 
 import { MongoError } from 'mongodb';
 import * as bcrypt from 'bcrypt';
-import { IUser, User } from '../Models/Auth/userModel';
+import { IUser, User, UserRole } from '../Models/Auth/userModel';
 import * as jwt from 'jsonwebtoken'; 
+import { ResponseInfo } from '../Helpers/Response';
 
 
 const registerUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
 
        const newUser = req.body as IUser; 
+
+       const email = newUser.email as string; 
+
+       const user = await collections.users?.findOne({email}); 
+
+       if (user) {
+           const jsonResponse = {
+               responseCode: ResponseInfo.UserExists.code,
+               responseMessage: ResponseInfo.UserExists.description,
+               data: null
+           };
+           return res.status(400).json(jsonResponse);
+       }
 
         const saltRounds = 10; 
         const salt = await bcrypt.genSalt(saltRounds); 
@@ -23,30 +37,28 @@ const registerUser = async (req: Request, res: Response, next: NextFunction) => 
         newUser.password = hashedPassword; 
         newUser.salt = salt; 
         newUser.dateCreated = new Date(); 
+        newUser.role = UserRole.User; 
 
         const result = await collections.users?.insertOne(newUser); 
 
 
         const response = result
         ? {
-            responseCode: "00",
-            responseMessage: `Successful created user with id ${result.insertedId}`,
+            responseCode: ResponseInfo.Success.code,
+            responseMessage: ResponseInfo.Success.description,
             data: result
         }
         : {
-            responseCode: "99",
-            responseMessage: "Failed to create user",
+            responseCode: ResponseInfo.Failed.code,
+            responseMessage: ResponseInfo.Failed.description,
             data: null
         };
     
     res.status(response ? 200 : 400).json(response);
 
     } catch (error) {
-        if (error instanceof MongoError && error.code === 11000) {
-            return res.status(400).json({ error: "Email already exists" });
-        }
         console.error('Error registering user:', error);
-        return res.status(500).json({ error: "Something went wrong" });
+        return res.status(500).json({ responseCode: ResponseInfo.SystemMalfunction.code, responseMessage: ResponseInfo.SystemMalfunction.description });
     }
 };
 
@@ -62,8 +74,8 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
 
         if (!user) {
             const jsonResponse = {
-                responseCode: "01",
-                responseMessage: "Invalid email or password",
+                responseCode: ResponseInfo.InvalidUser.code,
+                responseMessage: ResponseInfo.InvalidUser.description,
                 data: null
             };
             return res.status(401).json(jsonResponse);
@@ -74,24 +86,24 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
 
         if (!passwordMatch) {
             const jsonResponse = {
-                responseCode: "01",
-                responseMessage: "Invalid email or password",
+                responseCode: ResponseInfo.InvalidCredentials.code,
+                responseMessage: ResponseInfo.InvalidCredentials.description,
                 data: null
             };
             return res.status(401).json(jsonResponse);
         }
 
-        const token = jwt.sign({ userId: user._id, role: user.userRole }, secret_key, { expiresIn: '30m' });
+        const token = jwt.sign({ userId: user._id, role: user.role }, secret_key, { expiresIn: '30m' });
 
         const response = token
         ? {
-            responseCode: "00",
-            responseMessage: "Successful login",
+            responseCode: ResponseInfo.Success.code,
+            responseMessage: ResponseInfo.Success.description,
             data: token
         }
         : {
-            responseCode: "99",
-            responseMessage: "Login failed",
+            responseCode: ResponseInfo.Failed.code,
+            responseMessage: ResponseInfo.Failed.description,
             data: null
         };
     
@@ -100,7 +112,7 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
 
     } catch(error){
         console.error('Error login in:', error);
-        return res.status(500).json({ error: "Login Failed" });
+        return res.status(500).json({ responseCode: ResponseInfo.SystemMalfunction.code, responseMessage: ResponseInfo.SystemMalfunction.description });
     }
 }
 

@@ -1,29 +1,30 @@
 import { Request, Response, NextFunction, response } from 'express';
-import {collections} from "../Services/database.service";
+import { collections } from "../Services/database.service";
 import { IProduct, Product } from '../Models/Products/productModel';
 import mongoose from 'mongoose';
+import { ResponseInfo } from '../Helpers/Response';
 
 const createProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const newProduct = req.body as IProduct; 
+        const newProduct = req.body as IProduct;
 
-        const base64string = req.body.photo; 
-        const photoBuffer = Buffer.from(base64string, 'base64'); 
+        const base64string = req.body.photo;
+        const photoBuffer = Buffer.from(base64string, 'base64');
 
-        newProduct.photo = photoBuffer; 
-        newProduct.createdAt = new Date(); 
+        newProduct.photo = photoBuffer;
+        newProduct.createdAt = new Date();
 
-        const result = await collections.products?.insertOne(newProduct); 
+        const result = await collections.products?.insertOne(newProduct);
 
         const response = result
             ? {
-                responseCode: "00",
-                responseMessage: `Successful added product with id ${result.insertedId}`,
+                responseCode: ResponseInfo.Success.code,
+                responseMessage: ResponseInfo.Success.description,
                 data: result
             }
             : {
-                responseCode: "99",
-                responseMessage: "Failed to add product",
+                responseCode: ResponseInfo.Failed.code,
+                responseMessage: ResponseInfo.Failed.description,
                 data: null
             };
 
@@ -31,7 +32,7 @@ const createProduct = async (req: Request, res: Response, next: NextFunction) =>
 
     } catch (error) {
         console.error('Error adding product:', error);
-        return res.status(500).json({ error: "Something went wrong" });
+        return res.status(500).json({ responseCode: ResponseInfo.SystemMalfunction.code, responseMessage: ResponseInfo.SystemMalfunction.description });
     }
 };
 
@@ -39,82 +40,100 @@ const getProductById = async (req: Request, res: Response, next: NextFunction) =
     const productId = req.query.productId as string;
     try {
 
-        console.log(productId); 
+        console.log(productId);
         const product = await collections.products?.findOne({ _id: new mongoose.Types.ObjectId(productId) });
 
         const response = product
             ? {
-                responseCode: "00",
-                responseMessage: "Product retreived successfully",
+                responseCode: ResponseInfo.Success.code,
+                responseMessage: ResponseInfo.Success.description,
                 data: product
             }
             : {
-                responseCode: "99",
-                responseMessage: "Failed to get product",
+                responseCode: ResponseInfo.Failed.code,
+                responseMessage: ResponseInfo.Failed.description,
                 data: null
             };
 
         res.status(response ? 200 : 400).json(response);
     } catch (error) {
         console.error('Error fetching product by ID:', error);
-        return res.status(500).json({ error: 'Internal server error' });
+        return res.status(500).json({ responseCode: ResponseInfo.SystemMalfunction.code, responseMessage: ResponseInfo.SystemMalfunction.description });
     }
 };
 
 const getAllProductsByCategory = async (req: Request, res: Response, next: NextFunction) => {
-    const categoryId = req.query.categoryId;
+    const categoryId = req.query.categoryId as string; 
 
-    try 
-    {
-        console.log(categoryId);
+    try {
+        if (!categoryId) {
+            return res.status(400).json({ error: 'Category ID is required' });
+        }
+
         const productsCursor = collections.products?.find({ category: categoryId });
-
+        console.log(categoryId); 
 
         if (!productsCursor) {
-            return res.status(404).json({ error: 'No products found for the specified category' });
+            return res.status(404).json({
+                responseCode: ResponseInfo.ProductNotFound.code,
+                responseMessage: ResponseInfo.ProductNotFound.description,
+            });
         }
 
         const products = await productsCursor.toArray();
 
         if (!products || products.length === 0) {
-            return res.status(404).json({ error: 'No products found for the specified category' });
+            return res.status(404).json({
+                responseCode: ResponseInfo.CategoryNotFound.code,
+                responseMessage: ResponseInfo.CategoryNotFound.description,
+            });
         }
 
         res.status(200).json({
-            responseCode: "00",
-            responseMessage: "Products retrieved successfully",
+            responseCode: ResponseInfo.Success.code,
+            responseMessage: ResponseInfo.Success.description,
             data: products
         });
-    } catch(err){
+    } catch (err) {
         console.error('Error fetching product by ID:', err);
-        return res.status(500).json({ error: 'Internal server error' });
+        return res.status(500).json({ responseCode: ResponseInfo.SystemMalfunction.code, responseMessage: ResponseInfo.SystemMalfunction.description });
     }
 
-}; 
+};
 
 
 const deleteSingleProduct = async (req: Request, res: Response, next: NextFunction) => {
     const productId = req.query.productId as string;
 
     try {
+
+        const product = await collections.products?.findOne({ _id: new mongoose.Types.ObjectId(productId) });
+
+        if (!product) {
+            return res.status(400).json({
+                responseCode: ResponseInfo.ProductNotFound.code,
+                responseMessage: ResponseInfo.ProductNotFound.description,
+            });
+        }
+
         const result = await collections.products?.deleteOne({ _id: new mongoose.Types.ObjectId(productId) });
 
         const response = result
-        ? {
-            responseCode: "00",
-            responseMessage: "Product deleted successfully",
-            data: null
-        }
-        : {
-            responseCode: "99",
-            responseMessage: "Failed to delete product",
-            data: null
-        };
+            ? {
+                responseCode: ResponseInfo.Success.code,
+                responseMessage: ResponseInfo.Success.description,
+                data: null
+            }
+            : {
+                responseCode: ResponseInfo.Failed.code,
+                responseMessage: ResponseInfo.Failed.description,
+                data: null
+            };
 
-    res.status(response ? 200 : 400).json(response);
+        res.status(response ? 200 : 400).json(response);
     } catch (error) {
         console.error('Error deleting product:', error);
-        res.status(500).json({ success: false, message: 'Internal server error' });
+        return res.status(500).json({ responseCode: ResponseInfo.SystemMalfunction.code, responseMessage: ResponseInfo.SystemMalfunction.description });
     }
 }
 
@@ -122,9 +141,19 @@ const updateProduct = async (req: Request, res: Response, next: NextFunction) =>
     const productId = req.query.productId as string;
 
     try {
+
+        const product = await collections.products?.findOne({ _id: new mongoose.Types.ObjectId(productId) });
+
+        if (!product) {
+            return res.status(400).json({
+                responseCode: ResponseInfo.ProductNotFound.code,
+                responseMessage: ResponseInfo.ProductNotFound.description,
+            });
+        }
+
         const updatedProductData = {
-            ...req.body, 
-            updatedAt: new Date() 
+            ...req.body,
+            updatedAt: new Date()
         };
         const result = await collections.products?.updateOne(
             { _id: new mongoose.Types.ObjectId(productId) },
@@ -132,23 +161,23 @@ const updateProduct = async (req: Request, res: Response, next: NextFunction) =>
         );
 
         const response = result
-        ? {
-            responseCode: "00",
-            responseMessage: "Product updated successfully",
-            data: null
-        }
-        : {
-            responseCode: "99",
-            responseMessage: "Failed to update product",
-            data: null
-        };
+            ? {
+                responseCode: ResponseInfo.Success.code,
+                responseMessage: ResponseInfo.Success.description,
+                data: null
+            }
+            : {
+                responseCode: ResponseInfo.Failed.code,
+                responseMessage: ResponseInfo.Failed.description,
+                data: null
+            };
 
         res.status(response ? 200 : 400).json(response);
 
     } catch (error) {
         console.error('Error updating product:', error);
-        res.status(500).json({ success: false, message: 'Internal server error' });
+        return res.status(500).json({ responseCode: ResponseInfo.SystemMalfunction.code, responseMessage: ResponseInfo.SystemMalfunction.description });
     }
 }
 
-export {createProduct, getProductById, getAllProductsByCategory, deleteSingleProduct, updateProduct}
+export { createProduct, getProductById, getAllProductsByCategory, deleteSingleProduct, updateProduct }

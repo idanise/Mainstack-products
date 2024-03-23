@@ -28,7 +28,14 @@ const userSignupValidator = [
             }
             return true;
         }),
-
+    body().custom((value, { req }) => {
+        const allowedFields: string[] = ['firstName', 'lastName', 'phoneNumber', 'email', 'password', 'confirmPassword', 'middleName'];
+        const additionalFields = Object.keys(req.body).filter(field => !allowedFields.includes(field));
+        if (additionalFields.length > 0) {
+            throw new Error(`Invalid fields not allowed: ${additionalFields.join(', ')}`);
+        }
+        return true;
+    }),
     (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {

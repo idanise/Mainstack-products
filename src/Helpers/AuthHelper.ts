@@ -42,7 +42,7 @@ const isAdmin = (req: AuthenticatedRequest, res: Response, next: NextFunction) =
 
     try {
         const decoded: any = jwt.verify(token, secret_key);
-        if (decoded && decoded.role === UserRole.Admin) { // Check against decoded.role
+        if (decoded && decoded.role === UserRole.Admin) { 
             req.user = decoded;
             next();
         } else {

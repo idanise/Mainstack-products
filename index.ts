@@ -39,7 +39,9 @@ app.use("/api/category", categoryRoute);
 app.use("/api/product", productRoute); 
 
 
-app.listen(PORT,    () => {
+const server = app.listen(PORT,    () => {
     console.log(`App is listening on port ${PORT}`)
     logger.info("App has started")
 });
+
+export default server; 
