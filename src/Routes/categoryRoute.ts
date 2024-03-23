@@ -1,4 +1,4 @@
-import express from 'express'
+const express = require('express')
 const router = express.Router()
 import {authenticate, isAdmin} from '../Helpers/AuthHelper'
 import { createCategory, getAllCategories, getCategoryById, updateCategory, deleteSingleCategory } from '../Services/CategoryService';

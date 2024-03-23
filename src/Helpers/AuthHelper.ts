@@ -1,5 +1,5 @@
 import { Request as ExpressRequest, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+const jwt = require('jsonwebtoken')
 import { UserRole } from '../Models/Auth/userModel';
 
 interface AuthenticatedRequest extends ExpressRequest {

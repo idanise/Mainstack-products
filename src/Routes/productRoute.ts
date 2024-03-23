@@ -1,4 +1,4 @@
-import express from 'express'
+const express = require('express')
 const router = express.Router()
 import { createProduct, getProductById, getAllProductsByCategory, deleteSingleProduct, updateProduct } from '../Services/ProductService';
 import {authenticate, isAdmin} from '../Helpers/AuthHelper'

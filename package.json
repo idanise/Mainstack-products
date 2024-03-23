@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node index.ts",
-    "dev": "nodemon --exec ts-node index.ts"
-  },
+"scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "start": "ts-node index.ts",
+  "dev": "nodemon --exec ts-node index.ts",
+  "build": "tsc --project tsconfig.json"
+},
+
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -46,14 +48,15 @@
     "mongodb": "^6.5.0",
     "pino": "^8.19.0",
     "uuid": "^9.0.1"
-  }, 
-  
-    "jest": {
-      "testEnvironment": "node",
-      "moduleFileExtensions": ["ts", "js"],
-      "transform": {
-        "^.+\\.ts$": "ts-jest"
-      }
-  
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    }
   }
 }

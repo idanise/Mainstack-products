@@ -1,4 +1,4 @@
-import express from 'express'
+const express = require('express')
 const router = express.Router()
 import { userSignupValidator } from '../Validator/SignUpValidator'
 import { loginUser, registerUser } from '../Services/AuthService'

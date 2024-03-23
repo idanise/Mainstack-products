@@ -1,5 +1,5 @@
 import * as mongoDB from 'mongodb'; 
-import dotenv from 'dotenv'; 
+const dotenv = require('dotenv');
 import { mongo } from 'mongoose';
 dotenv.config();
 
@@ -15,7 +15,6 @@ export async function connectToDatabase () {
     await client.connect();
     
     const db: mongoDB.Db = client.db(process.env.DB_NAME);
-    console.log(db); 
    
     const usersCollection: mongoDB.Collection = db.collection(User_Collection);
     const categoriesCollection: mongoDB.Collection = db.collection(Category_Collection); 
