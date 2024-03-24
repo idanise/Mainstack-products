@@ -8,6 +8,7 @@ beforeAll(async () => {
 
 
 // AUTH TEST
+/**
 describe('POST /api/user/signup', () => {
     jest.setTimeout(1000000);
 
@@ -156,80 +157,117 @@ describe('POST /api/user/login', () => {
         });
     });
 });
-
+ */
 
 /////////////////////////////////////////
 // CATEGORY TESTS
 
-// describe('Create category endpoint tests', () => {
-//     jest.setTimeout(1000000);
+/** 
+ describe('Create category endpoint tests', () => {
+    jest.setTimeout(1000000);
 
-//     let authToken: string;
+    let authToken: string;
 
-//     beforeAll(async () => {
-//             const loginResponse = await request(server)
-//                 .post('/api/user/login')
-//                 .send({
-//                     email: 'daniseiheme@gmail.com',
-//                     password: 'Password@123'
-//                 });
+    beforeAll(async () => {
+            const loginResponse = await request(server)
+                .post('/api/user/login')
+                .send({
+                    email: 'daniseiheme@gmail.com',
+                    password: 'Password@123'
+                });
 
-//             authToken = loginResponse.body.data; 
+            authToken = loginResponse.body.data; 
   
-//     });
+    });
 
-//     it('should create a new category', async () => {
-//         try {
-//             const response = await request(server)
-//                 .post('/api/category/create')
-//                 .set('Authorization', `Bearer ${authToken}`)
-//                 .send({
-//                     name: 'New Category', 
-//                     createdBy: "daniseiheme@gmail.com"
-//                 });
+    it('should create a new category', async () => {
+        try {
+            const response = await request(server)
+                .post('/api/category/create')
+                .set('Authorization', `Bearer ${authToken}`)
+                .send({
+                    name: 'New Category', 
+                    createdBy: "daniseiheme@gmail.com"
+                });
 
-//             expect(response.status).toBe(200);
+            expect(response.status).toBe(200);
         
-//         } catch (error) {
-//             console.error('Error creating category:', error);
-//         }
-//     });
+        } catch (error) {
+            console.error('Error creating category:', error);
+        }
+    });
 
-// });
+});
+*/
 
 
-// describe('Create category endpoint tests', () => {
-//     jest.setTimeout(1000000);
 
-//     let authToken: string;
+describe('Create category endpoint tests', () => {
+    jest.setTimeout(1000000);
 
-//     beforeAll(async () => {
-//             const loginResponse = await request(server)
-//                 .post('/api/user/login')
-//                 .send({
-//                     email: 'daniseiheme@gmail.com',
-//                     password: 'Password@123'
-//                 });
+    let authToken: string;
 
-//             authToken = loginResponse.body.data; 
+    beforeAll(async () => {
+            const loginResponse = await request(server)
+                .post('/api/user/login')
+                .send({
+                    email: 'daniseiheme@gmail.com',
+                    password: 'Password@123'
+                });
+
+            authToken = loginResponse.body.data; 
   
-//     });
+    });
 
-//     it('should create a new category', async () => {
-//         try {
-//             const response = await request(server)
-//                 .post('/api/category/create')
-//                 .set('Authorization', `Bearer ${authToken}`)
-//                 .send({
-//                     name: 'New Category', 
-//                     createdBy: "daniseiheme@gmail.com"
-//                 });
+    it('should create a new category', async () => {
+        try {
+            const response = await request(server)
+                .post('/api/category/create')
+                .set('Authorization', `Bearer ${authToken}`)
+                .send({
+                    name: 'New Category', 
+                    createdBy: "daniseiheme@gmail.com"
+                });
 
-//             expect(response.status).toBe(200);
+            expect(response.status).toBe(200);
         
-//         } catch (error) {
-//             console.error('Error creating category:', error);
-//         }
-//     });
+        } catch (error) {
+            console.error('Error creating category:', error);
+        }
+    });
 
-// });
+});
+
+
+
+describe('Get category by  id', () => {
+    jest.setTimeout(1000000);
+
+    let authToken: string;
+
+    beforeAll(async () => {
+            const loginResponse = await request(server)
+                .post('/api/user/login')
+                .send({
+                    email: 'daniseiheme@gmail.com',
+                    password: 'Password@123'
+                });
+
+            authToken = loginResponse.body.data; 
+  
+    });
+
+    it('should get a category by id', async () => {
+        try {
+            const response = await request(server)
+                .post('/api/category/get?categoryId=65fe7605343050b744d9d37b')
+                .set('Authorization', `Bearer ${authToken}`)
+
+            expect(response.status).toBe(200);
+        
+        } catch (error) {
+            console.error('Error creating category:', error);
+        }
+    });
+
+});

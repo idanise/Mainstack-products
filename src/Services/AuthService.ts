@@ -19,6 +19,7 @@ const registerUser = async (req: Request, res: Response, next: NextFunction) => 
        const email = newUser.email as string; 
 
        const user = await collections.users?.findOne({email}); 
+       console.log(user); 
 
        if (user) {
            const jsonResponse = {
