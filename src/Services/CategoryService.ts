@@ -5,10 +5,12 @@ import mongoose from 'mongoose';
 import { ResponseInfo } from '../Helpers/Response';
 
 
+//Method to create category
 const createCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const newCategory = req.body as ICategory;
 
+        //save category to db
+        const newCategory = req.body as ICategory;
         const result = await collections.categories?.insertOne(newCategory);
 
         const response = result
@@ -32,12 +34,14 @@ const createCategory = async (req: Request, res: Response, next: NextFunction) =
 };
 
 
+
+//Method to get category by id
 const getCategoryById = async (req: Request, res: Response, next: NextFunction) => {
     const categoryId = req.query.categoryId as string;
     try {
 
+        //Query db with category id: Return not found if category doesn't exist
         const category = await collections.categories?.findOne({ _id: new mongoose.Types.ObjectId(categoryId) });
-
         if (!category) {
             const jsonResponse = {
                 responseCode: ResponseInfo.CategoryNotFound.code,
@@ -66,15 +70,19 @@ const getCategoryById = async (req: Request, res: Response, next: NextFunction) 
     }
 };
 
+
+//Method that gets all categories
 const getAllCategories = async (req: Request, res: Response, next: NextFunction) => {
     try {
+
+        //Query db with category
         const categoryCursor = collections.categories?.find();
         if (!categoryCursor) {
             return res.status(400).json({ error: 'Failed to retrieve categories' });
         }
 
+        //Convert category to an array
         const categories = await categoryCursor.toArray();
-
         const response = categories
             ? {
                 responseCode: ResponseInfo.Success.code,
@@ -96,12 +104,15 @@ const getAllCategories = async (req: Request, res: Response, next: NextFunction)
 };
 
 
+
+//Method that deletes a single category
 const deleteSingleCategory = async (req: Request, res: Response, next: NextFunction) => {
     const categoryId = req.query.categoryId as string;
     try {
 
-        const category = await collections.categories?.findOne({ _id: new mongoose.Types.ObjectId(categoryId) });
 
+        //Query db with category id
+        const category = await collections.categories?.findOne({ _id: new mongoose.Types.ObjectId(categoryId) });
         if (!category) {
             const jsonResponse = {
                 responseCode: ResponseInfo.CategoryNotFound.code,
@@ -111,15 +122,17 @@ const deleteSingleCategory = async (req: Request, res: Response, next: NextFunct
             return res.status(400).json(jsonResponse);
         }
 
-        const result = await collections.products?.deleteMany({ category: categoryId });
 
+        //Delete all products that is related ot gategory id
+        const result = await collections.products?.deleteMany({ category: categoryId });
         if (!result) {
             console.error('Error deleting products related to category');
             return res.status(500).json({ responseCode: ResponseInfo.SystemMalfunction.code, responseMessage: ResponseInfo.SystemMalfunction.description });
         }
 
-        const categoryResult = await collections.categories?.deleteOne({ _id: new mongoose.Types.ObjectId(categoryId) });
 
+        //Delete category
+        const categoryResult = await collections.categories?.deleteOne({ _id: new mongoose.Types.ObjectId(categoryId) });
         if (!categoryResult) {
             console.error('Error deleting category');
             return res.status(500).json({ responseCode: ResponseInfo.SystemMalfunction.code, responseMessage: ResponseInfo.SystemMalfunction.description });
@@ -139,13 +152,14 @@ const deleteSingleCategory = async (req: Request, res: Response, next: NextFunct
 }
 
 
+//Method to update category
 const updateCategory = async (req: Request, res: Response, next: NextFunction) => {
     const categoryId = req.query.categoryId as string;
 
     try {
 
+        //Query db with category id
         const category = await collections.categories?.findOne({ _id: new mongoose.Types.ObjectId(categoryId) });
-
         if (!category) {
             return res.status(400).json({
                 responseCode: ResponseInfo.CategoryNotFound.code,
@@ -153,6 +167,8 @@ const updateCategory = async (req: Request, res: Response, next: NextFunction) =
             });
         }
 
+
+        //Update db with new data
         const updateCategoryData = {
             ...req.body,
             updatedAt: new Date()

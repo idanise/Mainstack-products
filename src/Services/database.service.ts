@@ -10,6 +10,8 @@ const User_Collection = process.env.User_Collection as string;
 const Category_Collection = process.env.Category_Collection as string; 
 const Product_Collection = process.env.Product_Collection as string; 
 
+
+//Logic to connect to database
 export async function connectToDatabase () {
     const client: mongoDB.MongoClient = new mongoDB.MongoClient(DB_CONN_STRING);
     await client.connect();

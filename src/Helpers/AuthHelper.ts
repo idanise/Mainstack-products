@@ -8,6 +8,8 @@ interface AuthenticatedRequest extends ExpressRequest {
 
 const secret_key = process.env.SECRET_KEY as string;
 
+
+//Handles logic to authenticate user using bearer token
 const authenticate = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const authHeader = req.headers['authorization'];
     if (!authHeader) {
@@ -29,6 +31,7 @@ const authenticate = (req: AuthenticatedRequest, res: Response, next: NextFuncti
 };
 
 
+//Handles logic for elevated admin priviledges
 const isAdmin = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const authHeader = req.headers['authorization'];
     if (!authHeader) {

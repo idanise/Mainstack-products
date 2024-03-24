@@ -4,16 +4,22 @@ import { IProduct, Product } from '../Models/Products/productModel';
 import mongoose from 'mongoose';
 import { ResponseInfo } from '../Helpers/Response';
 
+
+//Method that creates a products
 const createProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
+
+
         const newProduct = req.body as IProduct;
 
+        //Convert base 54 string to buffer 
         const base64string = req.body.photo;
         const photoBuffer = Buffer.from(base64string, 'base64');
 
+
+        //Save product data to db
         newProduct.photo = photoBuffer;
         newProduct.createdAt = new Date();
-
         const result = await collections.products?.insertOne(newProduct);
 
         const response = result
@@ -36,11 +42,13 @@ const createProduct = async (req: Request, res: Response, next: NextFunction) =>
     }
 };
 
+
+//Method that gets product by id
 const getProductById = async (req: Request, res: Response, next: NextFunction) => {
     const productId = req.query.productId as string;
     try {
 
-        console.log(productId);
+        //Query db with product id
         const product = await collections.products?.findOne({ _id: new mongoose.Types.ObjectId(productId) });
 
         const response = product
@@ -62,6 +70,8 @@ const getProductById = async (req: Request, res: Response, next: NextFunction) =
     }
 };
 
+
+//Method that gets all product by category
 const getAllProductsByCategory = async (req: Request, res: Response, next: NextFunction) => {
     const categoryId = req.query.categoryId as string; 
 
@@ -70,6 +80,8 @@ const getAllProductsByCategory = async (req: Request, res: Response, next: NextF
             return res.status(400).json({ error: 'Category ID is required' });
         }
 
+
+        //Query db with category id
         const productsCursor = collections.products?.find({ category: categoryId });
         console.log(categoryId); 
 
@@ -80,8 +92,9 @@ const getAllProductsByCategory = async (req: Request, res: Response, next: NextF
             });
         }
 
-        const products = await productsCursor.toArray();
 
+        //Convert product found to array
+        const products = await productsCursor.toArray();
         if (!products || products.length === 0) {
             return res.status(404).json({
                 responseCode: ResponseInfo.CategoryNotFound.code,
@@ -101,12 +114,13 @@ const getAllProductsByCategory = async (req: Request, res: Response, next: NextF
 
 };
 
-
+//Method that deletes product
 const deleteSingleProduct = async (req: Request, res: Response, next: NextFunction) => {
     const productId = req.query.productId as string;
 
     try {
 
+        //Query db with product id
         const product = await collections.products?.findOne({ _id: new mongoose.Types.ObjectId(productId) });
 
         if (!product) {
@@ -116,6 +130,7 @@ const deleteSingleProduct = async (req: Request, res: Response, next: NextFuncti
             });
         }
 
+        //Delete found product
         const result = await collections.products?.deleteOne({ _id: new mongoose.Types.ObjectId(productId) });
 
         const response = result
@@ -137,11 +152,15 @@ const deleteSingleProduct = async (req: Request, res: Response, next: NextFuncti
     }
 }
 
+
+//Method that updates a product
 const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
     const productId = req.query.productId as string;
 
     try {
 
+
+        //Query db with product id
         const product = await collections.products?.findOne({ _id: new mongoose.Types.ObjectId(productId) });
 
         if (!product) {
@@ -151,6 +170,8 @@ const updateProduct = async (req: Request, res: Response, next: NextFunction) =>
             });
         }
 
+
+        //update product data
         const updatedProductData = {
             ...req.body,
             updatedAt: new Date()

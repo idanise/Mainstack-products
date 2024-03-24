@@ -11,13 +11,17 @@ import * as jwt from 'jsonwebtoken';
 import { ResponseInfo } from '../Helpers/Response';
 
 
+
+//Method to register a user
 const registerUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
 
        const newUser = req.body as IUser; 
 
        const email = newUser.email as string; 
+    
 
+       //Check whether email exists or not
        const user = await collections.users?.findOne({email}); 
        console.log(user); 
 
@@ -30,16 +34,17 @@ const registerUser = async (req: Request, res: Response, next: NextFunction) => 
            return res.status(400).json(jsonResponse);
        }
 
+        //Hash password
         const saltRounds = 10; 
         const salt = await bcrypt.genSalt(saltRounds); 
-
         const hashedPassword = await bcrypt.hash(newUser.password, salt); 
 
+
+        //Save user to db
         newUser.password = hashedPassword; 
         newUser.salt = salt; 
         newUser.dateCreated = new Date(); 
         newUser.role = UserRole.User; 
-
         const result = await collections.users?.insertOne(newUser); 
 
 
@@ -67,10 +72,9 @@ const registerUser = async (req: Request, res: Response, next: NextFunction) => 
 const loginUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
 
+        //Query db with email 
         const { email, password } = req.body; 
-
         const secret_key = process.env.SECRET_KEY as string; 
-
         const user = await collections.users?.findOne({email}); 
 
         if (!user) {
@@ -82,9 +86,9 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
             return res.status(401).json(jsonResponse);
         }
         
-
+        
+        //Check for password match
         const passwordMatch = await bcrypt.compare(password, user.password); 
-
         if (!passwordMatch) {
             const jsonResponse = {
                 responseCode: ResponseInfo.InvalidCredentials.code,
@@ -94,8 +98,8 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
             return res.status(401).json(jsonResponse);
         }
 
+        //Return token if password is a match
         const token = jwt.sign({ userId: user._id, role: user.role }, secret_key, { expiresIn: '30m' });
-
         const response = token
         ? {
             responseCode: ResponseInfo.Success.code,
@@ -116,6 +120,7 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
         return res.status(500).json({ responseCode: ResponseInfo.SystemMalfunction.code, responseMessage: ResponseInfo.SystemMalfunction.description });
     }
 }
+
 
 
 export { registerUser, loginUser };
