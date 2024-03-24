@@ -2,16 +2,17 @@
   "compilerOptions": {
     "target": "es2016",
     "module": "commonjs",
-    "outDir": "dist", // Specify the output directory for compiled JavaScript files
+    "outDir": "dist", 
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true
   },
   "include": [
-    "src/**/*.ts" // Specify the directory containing your TypeScript source files
+    // "src/**/*.ts" 
+    "*.ts" 
   ],
   "exclude": [
-    "node_modules" // Exclude the node_modules directory from compilation
+    "node_modules" 
   ]
 }
