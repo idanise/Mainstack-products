@@ -38,6 +38,15 @@ const getCategoryById = async (req: Request, res: Response, next: NextFunction) 
 
         const category = await collections.categories?.findOne({ _id: new mongoose.Types.ObjectId(categoryId) });
 
+        if (!category) {
+            const jsonResponse = {
+                responseCode: ResponseInfo.CategoryNotFound.code,
+                responseMessage: ResponseInfo.CategoryNotFound.description,
+                data: null
+            };
+            return res.status(400).json(jsonResponse);
+        }
+
         const response = category
             ? {
                 responseCode: ResponseInfo.Success.code,
@@ -89,35 +98,46 @@ const getAllCategories = async (req: Request, res: Response, next: NextFunction)
 
 const deleteSingleCategory = async (req: Request, res: Response, next: NextFunction) => {
     const categoryId = req.query.categoryId as string;
-
     try {
 
         const category = await collections.categories?.findOne({ _id: new mongoose.Types.ObjectId(categoryId) });
 
         if (!category) {
-            return res.status(400).json({ error: `Category with the id: ${categoryId} not found` });
-        }
-
-        const result = await collections.categories?.deleteOne({ _id: new mongoose.Types.ObjectId(categoryId) });
-
-        const response = result
-            ? {
-                responseCode: ResponseInfo.Success.code,
-                responseMessage: ResponseInfo.Success.description,
-                data: null
-            }
-            : {
-                responseCode: ResponseInfo.Failed.code,
-                responseMessage: ResponseInfo.Failed.description,
+            const jsonResponse = {
+                responseCode: ResponseInfo.CategoryNotFound.code,
+                responseMessage: ResponseInfo.CategoryNotFound.description,
                 data: null
             };
+            return res.status(400).json(jsonResponse);
+        }
 
-        res.status(response ? 200 : 400).json(response);
+        const result = await collections.products?.deleteMany({ category: categoryId });
+
+        if (!result) {
+            console.error('Error deleting products related to category');
+            return res.status(500).json({ responseCode: ResponseInfo.SystemMalfunction.code, responseMessage: ResponseInfo.SystemMalfunction.description });
+        }
+
+        const categoryResult = await collections.categories?.deleteOne({ _id: new mongoose.Types.ObjectId(categoryId) });
+
+        if (!categoryResult) {
+            console.error('Error deleting category');
+            return res.status(500).json({ responseCode: ResponseInfo.SystemMalfunction.code, responseMessage: ResponseInfo.SystemMalfunction.description });
+        }
+
+        const response = {
+            responseCode: ResponseInfo.Success.code,
+            responseMessage: ResponseInfo.Success.description,
+            data: null
+        };
+
+        res.status(200).json(response);
     } catch (error) {
         console.error('Error deleting category:', error);
         return res.status(500).json({ responseCode: ResponseInfo.SystemMalfunction.code, responseMessage: ResponseInfo.SystemMalfunction.description });
     }
 }
+
 
 const updateCategory = async (req: Request, res: Response, next: NextFunction) => {
     const categoryId = req.query.categoryId as string;
