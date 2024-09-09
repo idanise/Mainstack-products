@@ -1,0 +1,1 @@
+{"buildInfo":{"nodeVersion":"v20.9.0","version":"1.0.0"},"code":"ENOTFOUND","hostname":"_mongodb._tcp.devconnector.xou9u.mongodb.net","level":"error","service":"Mainstack-service","syscall":"querySrv"}
